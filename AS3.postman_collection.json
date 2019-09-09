@@ -1,0 +1,259 @@
+{
+	"info": {
+		"_postman_id": "c4e17ced-846a-4f87-abd0-9a1dd9f1894c",
+		"name": "AS3",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1-VIP, 1-Port (80), 2-Pool Members",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "admin",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"class\": \"AS3\",\r\n\t\"action\": \"deploy\",\r\n\t\"persist\": true,\r\n\t\r\n\t\"declaration\": {\r\n\t\t\"class\": \"ADC\",\r\n\t\t\"schemaVersion\": \"3.10.0\",\r\n\t\t\"controls\": {\r\n    \t\t\"trace\": true\r\n    \t},\r\n\t\t\r\n\t\t\"as3_tenant\": {\r\n\t\t\t\"class\": \"Tenant\",\r\n\t\t\t\r\n\t\t\t\"as3_app_1\": {\r\n\t\t\t\t\"class\": \"Application\",\r\n\t\t\t\t\"template\": \"generic\",\r\n\r\n\r\n\t\t\t\t\"virtual_server_1_80\": {\r\n\t\t\t\t\t\"class\": \"Service_Generic\",\r\n\t\t\t\t\t\"virtualPort\": 80,\r\n\t\t\t\t\t\"virtualAddresses\": [\r\n\t\t\t\t\t\t\"10.1.20.9\"\r\n\t\t\t\t\t],\r\n\t\t\t\t\t\"pool\": \"pool_1_80\",\r\n\t\t\t\t\t\"profileHTTP\": {\"use\": \"http\"}\r\n\t\t\t\t},\r\n\t\t\t\t\"pool_1_80\": {\r\n\t\t\t\t\t\"class\": \"Pool\",\r\n\t\t\t\t\t\"members\":[\r\n\t\t\t\t\t\t{\r\n\t\t\t\t\t\t\t\"servicePort\": 80,\r\n\t\t\t\t\t\t\t\"serverAddresses\": \r\n\t\t\t\t\t\t\t[\r\n\t\t\t\t\t\t\t\t\"10.1.10.11\",\r\n\t\t\t\t\t\t\t\t\"10.1.10.12\"\r\n\t\t\t\t\t\t\t]\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t]\r\n\t\t\t\t}\r\n\t\t\t\t\r\n\t\t\t\t\r\n\t\t\t}\r\n\t\t}\r\n\t}\r\n}"
+				},
+				"url": {
+					"raw": "https://10.1.1.7/mgmt/shared/appsvcs/declare",
+					"protocol": "https",
+					"host": [
+						"10",
+						"1",
+						"1",
+						"7"
+					],
+					"path": [
+						"mgmt",
+						"shared",
+						"appsvcs",
+						"declare"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "1-VIP, 2-Ports (80,443), BIG-IP Cert",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "admin",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"class\": \"ADC\",\r\n    \"schemaVersion\": \"3.2.0\",\r\n \r\n    \"as3_tenant\": {\r\n        \"class\": \"Tenant\",\r\n        \r\n        \"as3_app_2\": {\r\n            \"class\": \"Application\",\r\n            \"template\": \"generic\",\r\n            \r\n            \r\n            \"virtual_server_2_80\": {\r\n                \"class\": \"Service_Generic\",\r\n                \"virtualPort\": 80,\r\n                \"virtualAddresses\": [ \r\n                \t\"10.1.20.9\" \r\n                ],\r\n                \"pool\": \"pool_2_80\"\r\n            },\r\n            \"pool_2_80\": {\r\n                \"class\": \"Pool\",\r\n                \"monitors\": [\r\n                    \"http\"\r\n                ],\r\n                \"members\": [\r\n                {\r\n                    \"servicePort\": 80,\r\n                    \"serverAddresses\": [\r\n                        \"10.1.10.11\",\r\n                        \"10.1.10.12\"\r\n                        ]\r\n                    }\r\n            ]},\r\n            \r\n            \r\n            \"virtual_server_2_443\": {\r\n                \"class\": \"Service_HTTPS\",\r\n                \"persistenceMethods\": [],\r\n                \"virtualPort\": 443,\r\n                \"snat\": \"auto\",\r\n                \"virtualAddresses\": [ \r\n                \t\"10.1.20.9\" \r\n                ],\r\n                \"pool\": \"pool_2_443\",\r\n                \"serverTLS\": \"server_local_cert\"\r\n            },\r\n            \"pool_2_443\": {\r\n                \"class\": \"Pool\",\r\n                \"monitors\": [\r\n                    \"https\"\r\n                ],\r\n                \"members\": [\r\n                {\r\n                    \"servicePort\": 443,\r\n                    \"serverAddresses\": [\r\n                        \"10.1.10.11\",\r\n                        \"10.1.10.12\"\r\n                    ]\r\n                }]\r\n            },\r\n            \"server_local_cert\": {\r\n        \t\t\"class\": \"TLS_Server\",\r\n        \t\t\"certificates\": [\r\n            \t{\r\n            \t\t\"certificate\": \"tlsserver_local_cert\"\r\n            \t}]\r\n        \t},\r\n        \t\"tlsserver_local_cert\": {\r\n        \t\t\"class\": \"Certificate\",\r\n        \t\t\"certificate\": {\"bigip\":\"/Common/default.crt\"},\r\n        \t\t\"privateKey\": {\"bigip\":\"/Common/default.key\"}\r\n        \t}\r\n        }\r\n    }\r\n}"
+				},
+				"url": {
+					"raw": "https://10.1.1.7/mgmt/shared/appsvcs/declare",
+					"protocol": "https",
+					"host": [
+						"10",
+						"1",
+						"1",
+						"7"
+					],
+					"path": [
+						"mgmt",
+						"shared",
+						"appsvcs",
+						"declare"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "1-VIP, 2-Ports (8080,443), Cert Included",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "admin",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"class\": \"ADC\",\r\n    \"schemaVersion\": \"3.10.0\",\r\n \r\n    \"as3_tenant\": {\r\n        \"class\": \"Tenant\",\r\n        \r\n        \"as3_app_3\": {\r\n            \"class\": \"Application\",\r\n            \"template\": \"generic\",\r\n            \r\n            \r\n            \"virtual_server_3_8080\": {\r\n                \"class\": \"Service_Generic\",\r\n                \"virtualPort\": 8080,\r\n                \"virtualAddresses\": [ \r\n                \t\"10.1.20.9\" \r\n                ],\r\n                \"pool\": \"pool_3_8080\"\r\n            },\r\n            \"pool_3_8080\": {\r\n                \"class\": \"Pool\",\r\n                \"monitors\": [\r\n                    \"http\"\r\n                ],\r\n                \"members\": [\r\n                {\r\n                    \"servicePort\": 8080,\r\n                    \"serverAddresses\": [\r\n                        \"10.1.10.11\"\r\n                        ]\r\n                    }\r\n            ]},\r\n                \r\n                \r\n            \"virtual_server_3_443\": {\r\n                \"class\": \"Service_HTTPS\",\r\n                \"persistenceMethods\": [],\r\n                \"virtualPort\": 443,\r\n                \"snat\": \"auto\",\r\n                \"virtualAddresses\": [ \r\n                \t\"10.1.20.9\" \r\n                ],\r\n                \"pool\": \"pool_3_443\",\r\n                \"serverTLS\": \"webtls\"\r\n            },\r\n            \"pool_3_443\": {\r\n                \"class\": \"Pool\",\r\n                \"monitors\": [\r\n                    \"https\"\r\n                ],\r\n                \"members\": [\r\n                {\r\n                    \"servicePort\": 443,\r\n                    \"serverAddresses\": [\r\n                        \"10.1.10.12\"\r\n                    ]\r\n                }]\r\n            },\r\n            \"webtls\": {\r\n        \t\t\"class\": \"TLS_Server\",\r\n        \t\t\"certificates\": [{\r\n            \t\t\"certificate\": \"webcert\"\r\n        \t\t}]\r\n        \t},\r\n        \t\"webcert\": {\r\n        \t\t\"class\": \"Certificate\",\r\n        \t\t\"certificate\": \"-----BEGIN CERTIFICATE-----\\nMIICnDCCAgWgAwIBAgIJAJ5n2b0OCEjwMA0GCSqGSIb3DQEBCwUAMGcxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApXYXNoaW5ndG9uMRAwDgYDVQQHDAdTZWF0dGxlMRQwEgYDVQQKDAtmNV9OZXR3b3JrczEbMBkGA1UEAwwSc2FtcGxlLmV4YW1wbGUubmV0MB4XDTE3MTEyNjE5NTAyNFoXDTE4MDIyNTE5NTAyNFowZzELMAkGA1UEBhMCVVMxEzARBgNVBAgMCldhc2hpbmd0b24xEDAOBgNVBAcMB1NlYXR0bGUxFDASBgNVBAoMC2Y1X05ldHdvcmtzMRswGQYDVQQDDBJzYW1wbGUuZXhhbXBsZS5uZXQwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALEsuXmSXVQpYjrZPW+WiTBjn491mwZYT7Q92V1HlSBtM6WdWlK1aZN5sovfKtOX7Yrm8xa+e4o/zJ2QYLyyv5O+t2EGN/4qUEjEAPY9mwJdfzRQy6Hyzm84J0QkTuUJ/EjNuPji3D0QJRALUTzu1UqqDCEtiN9OGyXEkh7uvb7BAgMBAAGjUDBOMB0GA1UdDgQWBBSVHPNrGWrjWyZvckQxFYWO59FRFjAfBgNVHSMEGDAWgBSVHPNrGWrjWyZvckQxFYWO59FRFjAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4GBAJeJ9SEckEwPhkXOm+IuqfbUS/RcziifBCTmVyE+Fa/j9pKSYTgiEBNdbJeBEa+gPMlQtbV7Y2dy8TKx/8axVBHiXC5geDML7caxOrAyHYBpnx690xJTh5OIORBBM/a/NvaR+P3CoVebr/NPRh9oRNxnntnqvqD7SW0U3ZPe3tJc\\n-----END CERTIFICATE-----\",\r\n        \t\t\"privateKey\": \"-----BEGIN RSA PRIVATE KEY-----\\nProc-Type: 4,ENCRYPTED\\nDEK-Info: AES-256-CBC,D8FFCE6B255601587CB54EC29B737D31\\n\\nkv4Fc3Jn0Ujkj0yRjt+gQQfBLSNF2aRLUENXnlr7Xpzqu0Ahr3jS1bAAnd8IWnsR\\nyILqVmKsYF2DoHh0tWiEAQ7/y/fe5DTFhK7N4Wml6kp2yVMkP6KC4ssyYPw27kjK\\nDBwBZ5O8Ioej08A5sgsLCmglbmtSPHJUn14pQnMTmLOpEtOsu6S+2ibPgSNpdg0b\\nCAJNG/KHe+Vkx59qNDyDeKb7FZOlsX30+y67zUq9GQqJEDuysPJ2BUNP0IJXAjst\\nFIt1qNoZew+5KDYs7u/lPxcMGTirUhgI84Jy4WcDvSOsP/tKlxj04TbIE3epmSKy\\n+TihHkwY7ngIGtcm3Sfqk5jz2RXoj1/Ac3SW8kVTYaOUogBhn7zAq4Wju6Et4hQG\\nRGapsJp1aCeZ/a4RCDTxspcKoMaRa97/URQb0hBRGx3DGUhzpmX9zl7JI2Xa5D3R\\nmdBXtjLKYJTdIMdd27prBEKhMUpae2rz5Mw4J907wZeBq/wu+zp8LAnecfTe2nGY\\nE32x1U7gSEdYOGqnwxsOexb1jKgCa67Nw9TmcMPV8zmH7R9qdvgxAbAtwBl1F9OS\\nfcGaC7epf1AjJLtaX7krWmzgASHl28Ynh9lmGMdv+5QYMZvKG0LOg/n3m8uJ6sKy\\nIzzvaJswwn0j5P5+czyoV5CvvdCfKnNb+3jUEN8I0PPwjBGKr4B1ojwhogTM248V\\nHR69D6TxFVMfGpyJhCPkbGEGbpEpcffpgKuC/mEtMqyDQXJNaV5HO6HgAJ9F1P6v\\n5ehHHTMRvzCCFiwndHdlMXUjqSNjww6me6dr6LiAPbejdzhL2vWx1YqebOcwQx3G\\n-----END RSA PRIVATE KEY-----\",\r\n        \t\t\"passphrase\": {\r\n            \t\t\"ciphertext\": \"ZjVmNQ==\",\r\n            \t\t\"protected\": \"eyJhbGciOiJkaXIiLCJlbmMiOiJub25lIn0\"\r\n        \t\t}\r\n        \t}\r\n        \t\r\n        \t\r\n        }\r\n    }\r\n}"
+				},
+				"url": {
+					"raw": "https://10.1.1.7/mgmt/shared/appsvcs/declare",
+					"protocol": "https",
+					"host": [
+						"10",
+						"1",
+						"1",
+						"7"
+					],
+					"path": [
+						"mgmt",
+						"shared",
+						"appsvcs",
+						"declare"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5-VIPs,2-Ports (80,443), TCP Profile, iRule",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "admin",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"class\": \"ADC\",\r\n    \"schemaVersion\": \"3.10.0\",\r\n \r\n    \"as3_tenant\": {\r\n        \"class\": \"Tenant\",\r\n        \r\n        \r\n        \"as3_app_4_a\": {\r\n            \"class\": \"Application\",\r\n            \"template\": \"generic\",\r\n            \r\n            \"virtual_server_4_80_a\": {\r\n                \"class\": \"Service_Generic\",\r\n                \"virtualPort\": 80,\r\n                \"virtualAddresses\": [ \r\n                \t\"10.1.20.9\" \r\n                ],\r\n                \"pool\": \"pool_4_80_a\",\r\n                \"profileTCP\": {\r\n            \t\t\"bigip\": \"/Common/custom_tcp_profile\"\r\n        \t\t},\r\n        \t\t\"iRules\": [\r\n            \t\t\"rule_4_80_a\"\r\n        \t\t]\r\n            },\r\n            \"rule_4_80_a\": {\r\n        \t\t\"class\": \"iRule\",\r\n\t        \t\"remark\": \"choose private pool based on IP\",\r\n\t        \t\"iRule\": \"when CLIENT_ACCEPTED {\\nif {[IP::client_addr] starts_with \\\"10.\\\"} {\\n pool `*pool_4_80_a`\\n }\\n}\"\r\n\t        },\r\n            \"pool_4_80_a\": {\r\n                \"class\": \"Pool\",\r\n                \"monitors\": [\r\n                    \"http\"\r\n                ],\r\n                \"members\": [\r\n                {\r\n                    \"servicePort\": 80,\r\n                    \"serverAddresses\": [\r\n                        \"10.1.10.11\"\r\n                    ]\r\n                }\r\n            ]},\r\n            \r\n            \"virtual_server_4_443_a\": {\r\n                \"class\": \"Service_HTTPS\",\r\n                \"persistenceMethods\": [],\r\n                \"virtualPort\": 443,\r\n                \"snat\": \"auto\",\r\n                \"virtualAddresses\": [ \r\n                \t\"10.1.20.9\" \r\n                ],\r\n                \"pool\": \"pool_4_443_a\",\r\n                \"serverTLS\": \"webtls\",\r\n                \"profileTCP\": {\r\n            \t\t\"bigip\": \"/Common/custom_tcp_profile\"\r\n        \t\t},\r\n        \t\t\"iRules\": [\r\n            \t\t\"rule_4_443_a\"\r\n        \t\t]\r\n            },\r\n            \"rule_4_443_a\": {\r\n        \t\t\"class\": \"iRule\",\r\n\t        \t\"remark\": \"choose private pool based on IP\",\r\n\t        \t\"iRule\": \"when CLIENT_ACCEPTED {\\nif {[IP::client_addr] starts_with \\\"10.\\\"} {\\n pool `*pool_4_443_a`\\n }\\n}\"\r\n\t        },\r\n            \"pool_4_443_a\": {\r\n                \"class\": \"Pool\",\r\n                \"monitors\": [\r\n                    \"https\"\r\n                ],\r\n                \"members\": [\r\n                {\r\n                    \"servicePort\": 443,\r\n                    \"serverAddresses\": [\r\n                        \"10.1.10.12\"\r\n                    ]\r\n                }]\r\n            },\r\n            \"webtls\": {\r\n        \t\t\"class\": \"TLS_Server\",\r\n        \t\t\"certificates\": [{\r\n            \t\t\"certificate\": \"webcert\"\r\n        \t\t}]\r\n        \t},\r\n        \t\"webcert\": {\r\n        \t\t\"class\": \"Certificate\",\r\n        \t\t\"certificate\": \"-----BEGIN CERTIFICATE-----\\nMIICnDCCAgWgAwIBAgIJAJ5n2b0OCEjwMA0GCSqGSIb3DQEBCwUAMGcxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApXYXNoaW5ndG9uMRAwDgYDVQQHDAdTZWF0dGxlMRQwEgYDVQQKDAtmNV9OZXR3b3JrczEbMBkGA1UEAwwSc2FtcGxlLmV4YW1wbGUubmV0MB4XDTE3MTEyNjE5NTAyNFoXDTE4MDIyNTE5NTAyNFowZzELMAkGA1UEBhMCVVMxEzARBgNVBAgMCldhc2hpbmd0b24xEDAOBgNVBAcMB1NlYXR0bGUxFDASBgNVBAoMC2Y1X05ldHdvcmtzMRswGQYDVQQDDBJzYW1wbGUuZXhhbXBsZS5uZXQwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALEsuXmSXVQpYjrZPW+WiTBjn491mwZYT7Q92V1HlSBtM6WdWlK1aZN5sovfKtOX7Yrm8xa+e4o/zJ2QYLyyv5O+t2EGN/4qUEjEAPY9mwJdfzRQy6Hyzm84J0QkTuUJ/EjNuPji3D0QJRALUTzu1UqqDCEtiN9OGyXEkh7uvb7BAgMBAAGjUDBOMB0GA1UdDgQWBBSVHPNrGWrjWyZvckQxFYWO59FRFjAfBgNVHSMEGDAWgBSVHPNrGWrjWyZvckQxFYWO59FRFjAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4GBAJeJ9SEckEwPhkXOm+IuqfbUS/RcziifBCTmVyE+Fa/j9pKSYTgiEBNdbJeBEa+gPMlQtbV7Y2dy8TKx/8axVBHiXC5geDML7caxOrAyHYBpnx690xJTh5OIORBBM/a/NvaR+P3CoVebr/NPRh9oRNxnntnqvqD7SW0U3ZPe3tJc\\n-----END CERTIFICATE-----\",\r\n        \t\t\"privateKey\": \"-----BEGIN RSA PRIVATE KEY-----\\nProc-Type: 4,ENCRYPTED\\nDEK-Info: AES-256-CBC,D8FFCE6B255601587CB54EC29B737D31\\n\\nkv4Fc3Jn0Ujkj0yRjt+gQQfBLSNF2aRLUENXnlr7Xpzqu0Ahr3jS1bAAnd8IWnsR\\nyILqVmKsYF2DoHh0tWiEAQ7/y/fe5DTFhK7N4Wml6kp2yVMkP6KC4ssyYPw27kjK\\nDBwBZ5O8Ioej08A5sgsLCmglbmtSPHJUn14pQnMTmLOpEtOsu6S+2ibPgSNpdg0b\\nCAJNG/KHe+Vkx59qNDyDeKb7FZOlsX30+y67zUq9GQqJEDuysPJ2BUNP0IJXAjst\\nFIt1qNoZew+5KDYs7u/lPxcMGTirUhgI84Jy4WcDvSOsP/tKlxj04TbIE3epmSKy\\n+TihHkwY7ngIGtcm3Sfqk5jz2RXoj1/Ac3SW8kVTYaOUogBhn7zAq4Wju6Et4hQG\\nRGapsJp1aCeZ/a4RCDTxspcKoMaRa97/URQb0hBRGx3DGUhzpmX9zl7JI2Xa5D3R\\nmdBXtjLKYJTdIMdd27prBEKhMUpae2rz5Mw4J907wZeBq/wu+zp8LAnecfTe2nGY\\nE32x1U7gSEdYOGqnwxsOexb1jKgCa67Nw9TmcMPV8zmH7R9qdvgxAbAtwBl1F9OS\\nfcGaC7epf1AjJLtaX7krWmzgASHl28Ynh9lmGMdv+5QYMZvKG0LOg/n3m8uJ6sKy\\nIzzvaJswwn0j5P5+czyoV5CvvdCfKnNb+3jUEN8I0PPwjBGKr4B1ojwhogTM248V\\nHR69D6TxFVMfGpyJhCPkbGEGbpEpcffpgKuC/mEtMqyDQXJNaV5HO6HgAJ9F1P6v\\n5ehHHTMRvzCCFiwndHdlMXUjqSNjww6me6dr6LiAPbejdzhL2vWx1YqebOcwQx3G\\n-----END RSA PRIVATE KEY-----\",\r\n        \t\t\"passphrase\": {\r\n            \t\t\"ciphertext\": \"ZjVmNQ==\",\r\n            \t\t\"protected\": \"eyJhbGciOiJkaXIiLCJlbmMiOiJub25lIn0\"\r\n        \t\t}\r\n        \t}\r\n        },\r\n        \r\n        \"as3_app_4_b\": {\r\n            \"class\": \"Application\",\r\n            \"template\": \"generic\",\r\n            \r\n            \"virtual_server_4_80_b\": {\r\n                \"class\": \"Service_Generic\",\r\n                \"virtualPort\": 80,\r\n                \"virtualAddresses\": [ \r\n                \t\"10.1.20.10\" \r\n                ],\r\n                \"pool\": \"pool_4_80_b\",\r\n                \"profileTCP\": {\r\n            \t\t\"bigip\": \"/Common/custom_tcp_profile\"\r\n        \t\t},\r\n        \t\t\"iRules\": [\r\n            \t\t\"rule_4_80_b\"\r\n        \t\t]\r\n            },\r\n            \"rule_4_80_b\": {\r\n        \t\t\"class\": \"iRule\",\r\n\t        \t\"remark\": \"choose private pool based on IP\",\r\n\t        \t\"iRule\": \"when CLIENT_ACCEPTED {\\nif {[IP::client_addr] starts_with \\\"10.\\\"} {\\n pool `*pool_4_80_b`\\n }\\n}\"\r\n\t        },\r\n            \r\n            \"pool_4_80_b\": {\r\n                \"class\": \"Pool\",\r\n                \"monitors\": [\r\n                    \"http\"\r\n                ],\r\n                \"members\": [\r\n                {\r\n                    \"servicePort\": 80,\r\n                    \"serverAddresses\": [\r\n                        \"10.1.10.11\"\r\n                        ]\r\n                    }\r\n            ]},\r\n                \r\n                \r\n            \"virtual_server_4_443_b\": {\r\n                \"class\": \"Service_HTTPS\",\r\n                \"persistenceMethods\": [],\r\n                \"virtualPort\": 443,\r\n                \"snat\": \"auto\",\r\n                \"virtualAddresses\": [ \r\n                \t\"10.1.20.10\" \r\n                ],\r\n                \"pool\": \"pool_4_443_b\",\r\n                \"serverTLS\": \"webtls\",\r\n                \"profileTCP\": {\r\n            \t\t\"bigip\": \"/Common/custom_tcp_profile\"\r\n        \t\t},\r\n        \t\t\"iRules\": [\r\n            \t\t\"rule_4_443_b\"\r\n        \t\t]\r\n            },\r\n            \"rule_4_443_b\": {\r\n        \t\t\"class\": \"iRule\",\r\n\t        \t\"remark\": \"choose private pool based on IP\",\r\n\t        \t\"iRule\": \"when CLIENT_ACCEPTED {\\nif {[IP::client_addr] starts_with \\\"10.\\\"} {\\n pool `*pool_4_443_b`\\n }\\n}\"\r\n\t        },\r\n            \r\n            \"pool_4_443_b\": {\r\n                \"class\": \"Pool\",\r\n                \"monitors\": [\r\n                    \"https\"\r\n                ],\r\n                \"members\": [\r\n                {\r\n                    \"servicePort\": 443,\r\n                    \"serverAddresses\": [\r\n                        \"10.1.10.11\"\r\n                    ]\r\n                }]\r\n            },\r\n            \"webtls\": {\r\n        \t\t\"class\": \"TLS_Server\",\r\n        \t\t\"certificates\": [{\r\n            \t\t\"certificate\": \"webcert\"\r\n        \t\t}]\r\n        \t},\r\n        \t\"webcert\": {\r\n        \t\t\"class\": \"Certificate\",\r\n        \t\t\"certificate\": \"-----BEGIN CERTIFICATE-----\\nMIICnDCCAgWgAwIBAgIJAJ5n2b0OCEjwMA0GCSqGSIb3DQEBCwUAMGcxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApXYXNoaW5ndG9uMRAwDgYDVQQHDAdTZWF0dGxlMRQwEgYDVQQKDAtmNV9OZXR3b3JrczEbMBkGA1UEAwwSc2FtcGxlLmV4YW1wbGUubmV0MB4XDTE3MTEyNjE5NTAyNFoXDTE4MDIyNTE5NTAyNFowZzELMAkGA1UEBhMCVVMxEzARBgNVBAgMCldhc2hpbmd0b24xEDAOBgNVBAcMB1NlYXR0bGUxFDASBgNVBAoMC2Y1X05ldHdvcmtzMRswGQYDVQQDDBJzYW1wbGUuZXhhbXBsZS5uZXQwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALEsuXmSXVQpYjrZPW+WiTBjn491mwZYT7Q92V1HlSBtM6WdWlK1aZN5sovfKtOX7Yrm8xa+e4o/zJ2QYLyyv5O+t2EGN/4qUEjEAPY9mwJdfzRQy6Hyzm84J0QkTuUJ/EjNuPji3D0QJRALUTzu1UqqDCEtiN9OGyXEkh7uvb7BAgMBAAGjUDBOMB0GA1UdDgQWBBSVHPNrGWrjWyZvckQxFYWO59FRFjAfBgNVHSMEGDAWgBSVHPNrGWrjWyZvckQxFYWO59FRFjAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4GBAJeJ9SEckEwPhkXOm+IuqfbUS/RcziifBCTmVyE+Fa/j9pKSYTgiEBNdbJeBEa+gPMlQtbV7Y2dy8TKx/8axVBHiXC5geDML7caxOrAyHYBpnx690xJTh5OIORBBM/a/NvaR+P3CoVebr/NPRh9oRNxnntnqvqD7SW0U3ZPe3tJc\\n-----END CERTIFICATE-----\",\r\n        \t\t\"privateKey\": \"-----BEGIN RSA PRIVATE KEY-----\\nProc-Type: 4,ENCRYPTED\\nDEK-Info: AES-256-CBC,D8FFCE6B255601587CB54EC29B737D31\\n\\nkv4Fc3Jn0Ujkj0yRjt+gQQfBLSNF2aRLUENXnlr7Xpzqu0Ahr3jS1bAAnd8IWnsR\\nyILqVmKsYF2DoHh0tWiEAQ7/y/fe5DTFhK7N4Wml6kp2yVMkP6KC4ssyYPw27kjK\\nDBwBZ5O8Ioej08A5sgsLCmglbmtSPHJUn14pQnMTmLOpEtOsu6S+2ibPgSNpdg0b\\nCAJNG/KHe+Vkx59qNDyDeKb7FZOlsX30+y67zUq9GQqJEDuysPJ2BUNP0IJXAjst\\nFIt1qNoZew+5KDYs7u/lPxcMGTirUhgI84Jy4WcDvSOsP/tKlxj04TbIE3epmSKy\\n+TihHkwY7ngIGtcm3Sfqk5jz2RXoj1/Ac3SW8kVTYaOUogBhn7zAq4Wju6Et4hQG\\nRGapsJp1aCeZ/a4RCDTxspcKoMaRa97/URQb0hBRGx3DGUhzpmX9zl7JI2Xa5D3R\\nmdBXtjLKYJTdIMdd27prBEKhMUpae2rz5Mw4J907wZeBq/wu+zp8LAnecfTe2nGY\\nE32x1U7gSEdYOGqnwxsOexb1jKgCa67Nw9TmcMPV8zmH7R9qdvgxAbAtwBl1F9OS\\nfcGaC7epf1AjJLtaX7krWmzgASHl28Ynh9lmGMdv+5QYMZvKG0LOg/n3m8uJ6sKy\\nIzzvaJswwn0j5P5+czyoV5CvvdCfKnNb+3jUEN8I0PPwjBGKr4B1ojwhogTM248V\\nHR69D6TxFVMfGpyJhCPkbGEGbpEpcffpgKuC/mEtMqyDQXJNaV5HO6HgAJ9F1P6v\\n5ehHHTMRvzCCFiwndHdlMXUjqSNjww6me6dr6LiAPbejdzhL2vWx1YqebOcwQx3G\\n-----END RSA PRIVATE KEY-----\",\r\n        \t\t\"passphrase\": {\r\n            \t\t\"ciphertext\": \"ZjVmNQ==\",\r\n            \t\t\"protected\": \"eyJhbGciOiJkaXIiLCJlbmMiOiJub25lIn0\"\r\n        \t\t}\r\n        \t}\r\n        },\r\n        \r\n        \"as3_app_4_c\": {\r\n            \"class\": \"Application\",\r\n            \"template\": \"generic\",\r\n            \r\n            \"virtual_server_4_80_c\": {\r\n                \"class\": \"Service_Generic\",\r\n                \"virtualPort\": 80,\r\n                \"virtualAddresses\": [ \r\n                \t\"10.1.20.11\" \r\n                ],\r\n                \"pool\": \"pool_4_80_c\",\r\n                \"profileTCP\": {\r\n            \t\t\"bigip\": \"/Common/custom_tcp_profile\"\r\n        \t\t},\r\n        \t\t\"iRules\": [\r\n            \t\t\"rule_4_80_c\"\t\r\n            \t]\r\n            },\r\n            \"rule_4_80_c\": {\r\n        \t\t\"class\": \"iRule\",\r\n\t        \t\"remark\": \"choose private pool based on IP\",\r\n\t        \t\"iRule\": \"when CLIENT_ACCEPTED {\\nif {[IP::client_addr] starts_with \\\"10.\\\"} {\\n pool `*pool_4_80_c`\\n }\\n}\"\r\n\t        },\r\n            \"pool_4_80_c\": {\r\n                \"class\": \"Pool\",\r\n                \"monitors\": [\r\n                    \"http\"\r\n                ],\r\n                \"members\": [\r\n                {\r\n                    \"servicePort\": 80,\r\n                    \"serverAddresses\": [\r\n                        \"10.1.10.11\"\r\n                        ]\r\n                    }\r\n            ]},\r\n                \r\n                \r\n            \"virtual_server_4_443_c\": {\r\n                \"class\": \"Service_HTTPS\",\r\n                \"persistenceMethods\": [],\r\n                \"virtualPort\": 443,\r\n                \"snat\": \"auto\",\r\n                \"virtualAddresses\": [ \r\n                \t\"10.1.20.11\" \r\n                ],\r\n                \"pool\": \"pool_4_443_c\",\r\n                \"serverTLS\": \"webtls\",\r\n                \"profileTCP\": {\r\n            \t\t\"bigip\": \"/Common/custom_tcp_profile\"\r\n        \t\t},\r\n        \t\t\"iRules\": [\r\n            \t\t\"rule_4_443_c\"\t\r\n            \t]\r\n            },\r\n            \"rule_4_443_c\": {\r\n        \t\t\"class\": \"iRule\",\r\n\t        \t\"remark\": \"choose private pool based on IP\",\r\n\t        \t\"iRule\": \"when CLIENT_ACCEPTED {\\nif {[IP::client_addr] starts_with \\\"10.\\\"} {\\n pool `*pool_4_443_c`\\n }\\n}\"\r\n\t        },\r\n            \"pool_4_443_c\": {\r\n                \"class\": \"Pool\",\r\n                \"monitors\": [\r\n                    \"https\"\r\n                ],\r\n                \"members\": [\r\n                {\r\n                    \"servicePort\": 443,\r\n                    \"serverAddresses\": [\r\n                        \"10.1.10.11\"\r\n                    ]\r\n                }]\r\n            },\r\n            \"webtls\": {\r\n        \t\t\"class\": \"TLS_Server\",\r\n        \t\t\"certificates\": [{\r\n            \t\t\"certificate\": \"webcert\"\r\n        \t\t}]\r\n        \t},\r\n        \t\"webcert\": {\r\n        \t\t\"class\": \"Certificate\",\r\n        \t\t\"certificate\": \"-----BEGIN CERTIFICATE-----\\nMIICnDCCAgWgAwIBAgIJAJ5n2b0OCEjwMA0GCSqGSIb3DQEBCwUAMGcxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApXYXNoaW5ndG9uMRAwDgYDVQQHDAdTZWF0dGxlMRQwEgYDVQQKDAtmNV9OZXR3b3JrczEbMBkGA1UEAwwSc2FtcGxlLmV4YW1wbGUubmV0MB4XDTE3MTEyNjE5NTAyNFoXDTE4MDIyNTE5NTAyNFowZzELMAkGA1UEBhMCVVMxEzARBgNVBAgMCldhc2hpbmd0b24xEDAOBgNVBAcMB1NlYXR0bGUxFDASBgNVBAoMC2Y1X05ldHdvcmtzMRswGQYDVQQDDBJzYW1wbGUuZXhhbXBsZS5uZXQwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALEsuXmSXVQpYjrZPW+WiTBjn491mwZYT7Q92V1HlSBtM6WdWlK1aZN5sovfKtOX7Yrm8xa+e4o/zJ2QYLyyv5O+t2EGN/4qUEjEAPY9mwJdfzRQy6Hyzm84J0QkTuUJ/EjNuPji3D0QJRALUTzu1UqqDCEtiN9OGyXEkh7uvb7BAgMBAAGjUDBOMB0GA1UdDgQWBBSVHPNrGWrjWyZvckQxFYWO59FRFjAfBgNVHSMEGDAWgBSVHPNrGWrjWyZvckQxFYWO59FRFjAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4GBAJeJ9SEckEwPhkXOm+IuqfbUS/RcziifBCTmVyE+Fa/j9pKSYTgiEBNdbJeBEa+gPMlQtbV7Y2dy8TKx/8axVBHiXC5geDML7caxOrAyHYBpnx690xJTh5OIORBBM/a/NvaR+P3CoVebr/NPRh9oRNxnntnqvqD7SW0U3ZPe3tJc\\n-----END CERTIFICATE-----\",\r\n        \t\t\"privateKey\": \"-----BEGIN RSA PRIVATE KEY-----\\nProc-Type: 4,ENCRYPTED\\nDEK-Info: AES-256-CBC,D8FFCE6B255601587CB54EC29B737D31\\n\\nkv4Fc3Jn0Ujkj0yRjt+gQQfBLSNF2aRLUENXnlr7Xpzqu0Ahr3jS1bAAnd8IWnsR\\nyILqVmKsYF2DoHh0tWiEAQ7/y/fe5DTFhK7N4Wml6kp2yVMkP6KC4ssyYPw27kjK\\nDBwBZ5O8Ioej08A5sgsLCmglbmtSPHJUn14pQnMTmLOpEtOsu6S+2ibPgSNpdg0b\\nCAJNG/KHe+Vkx59qNDyDeKb7FZOlsX30+y67zUq9GQqJEDuysPJ2BUNP0IJXAjst\\nFIt1qNoZew+5KDYs7u/lPxcMGTirUhgI84Jy4WcDvSOsP/tKlxj04TbIE3epmSKy\\n+TihHkwY7ngIGtcm3Sfqk5jz2RXoj1/Ac3SW8kVTYaOUogBhn7zAq4Wju6Et4hQG\\nRGapsJp1aCeZ/a4RCDTxspcKoMaRa97/URQb0hBRGx3DGUhzpmX9zl7JI2Xa5D3R\\nmdBXtjLKYJTdIMdd27prBEKhMUpae2rz5Mw4J907wZeBq/wu+zp8LAnecfTe2nGY\\nE32x1U7gSEdYOGqnwxsOexb1jKgCa67Nw9TmcMPV8zmH7R9qdvgxAbAtwBl1F9OS\\nfcGaC7epf1AjJLtaX7krWmzgASHl28Ynh9lmGMdv+5QYMZvKG0LOg/n3m8uJ6sKy\\nIzzvaJswwn0j5P5+czyoV5CvvdCfKnNb+3jUEN8I0PPwjBGKr4B1ojwhogTM248V\\nHR69D6TxFVMfGpyJhCPkbGEGbpEpcffpgKuC/mEtMqyDQXJNaV5HO6HgAJ9F1P6v\\n5ehHHTMRvzCCFiwndHdlMXUjqSNjww6me6dr6LiAPbejdzhL2vWx1YqebOcwQx3G\\n-----END RSA PRIVATE KEY-----\",\r\n        \t\t\"passphrase\": {\r\n            \t\t\"ciphertext\": \"ZjVmNQ==\",\r\n            \t\t\"protected\": \"eyJhbGciOiJkaXIiLCJlbmMiOiJub25lIn0\"\r\n        \t\t}\r\n        \t}\r\n        },\r\n        \r\n        \"as3_app_4_d\": {\r\n            \"class\": \"Application\",\r\n            \"template\": \"generic\",\r\n            \r\n            \"virtual_server_4_80_d\": {\r\n                \"class\": \"Service_Generic\",\r\n                \"virtualPort\": 80,\r\n                \"virtualAddresses\": [ \r\n                \t\"10.1.20.12\" \r\n                ],\r\n                \"pool\": \"pool_4_80_d\",\r\n                \"profileTCP\": {\r\n            \t\t\"bigip\": \"/Common/custom_tcp_profile\"\r\n        \t\t},\r\n        \t\t\"iRules\": [\r\n            \t\t\"rule_4_80_d\"\t\r\n            \t]\r\n            },\r\n            \"rule_4_80_d\": {\r\n        \t\t\"class\": \"iRule\",\r\n\t        \t\"remark\": \"choose private pool based on IP\",\r\n\t        \t\"iRule\": \"when CLIENT_ACCEPTED {\\nif {[IP::client_addr] starts_with \\\"10.\\\"} {\\n pool `*pool_4_80_d`\\n }\\n}\"\r\n\t        },\r\n            \"pool_4_80_d\": {\r\n                \"class\": \"Pool\",\r\n                \"monitors\": [\r\n                    \"http\"\r\n                ],\r\n                \"members\": [\r\n                {\r\n                    \"servicePort\": 80,\r\n                    \"serverAddresses\": [\r\n                        \"10.1.10.11\"\r\n                        ]\r\n                    }\r\n            ]},\r\n                \r\n                \r\n            \"virtual_server_4_443_d\": {\r\n                \"class\": \"Service_HTTPS\",\r\n                \"persistenceMethods\": [],\r\n                \"virtualPort\": 443,\r\n                \"snat\": \"auto\",\r\n                \"virtualAddresses\": [ \r\n                \t\"10.1.20.12\" \r\n                ],\r\n                \"pool\": \"pool_4_443_d\",\r\n                \"serverTLS\": \"webtls\",\r\n                \"profileTCP\": {\r\n            \t\t\"bigip\": \"/Common/custom_tcp_profile\"\r\n        \t\t},\r\n        \t\t\"iRules\": [\r\n            \t\t\"rule_4_443_d\"\t\r\n            \t]\r\n            },\r\n            \"rule_4_443_d\": {\r\n        \t\t\"class\": \"iRule\",\r\n\t        \t\"remark\": \"choose private pool based on IP\",\r\n\t        \t\"iRule\": \"when CLIENT_ACCEPTED {\\nif {[IP::client_addr] starts_with \\\"10.\\\"} {\\n pool `*pool_4_443_d`\\n }\\n}\"\r\n\t        },\r\n            \"pool_4_443_d\": {\r\n                \"class\": \"Pool\",\r\n                \"monitors\": [\r\n                    \"https\"\r\n                ],\r\n                \"members\": [\r\n                {\r\n                    \"servicePort\": 443,\r\n                    \"serverAddresses\": [\r\n                        \"10.1.10.11\"\r\n                    ]\r\n                }]\r\n            },\r\n            \"webtls\": {\r\n        \t\t\"class\": \"TLS_Server\",\r\n        \t\t\"certificates\": [{\r\n            \t\t\"certificate\": \"webcert\"\r\n        \t\t}]\r\n        \t},\r\n        \t\"webcert\": {\r\n        \t\t\"class\": \"Certificate\",\r\n        \t\t\"certificate\": \"-----BEGIN CERTIFICATE-----\\nMIICnDCCAgWgAwIBAgIJAJ5n2b0OCEjwMA0GCSqGSIb3DQEBCwUAMGcxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApXYXNoaW5ndG9uMRAwDgYDVQQHDAdTZWF0dGxlMRQwEgYDVQQKDAtmNV9OZXR3b3JrczEbMBkGA1UEAwwSc2FtcGxlLmV4YW1wbGUubmV0MB4XDTE3MTEyNjE5NTAyNFoXDTE4MDIyNTE5NTAyNFowZzELMAkGA1UEBhMCVVMxEzARBgNVBAgMCldhc2hpbmd0b24xEDAOBgNVBAcMB1NlYXR0bGUxFDASBgNVBAoMC2Y1X05ldHdvcmtzMRswGQYDVQQDDBJzYW1wbGUuZXhhbXBsZS5uZXQwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALEsuXmSXVQpYjrZPW+WiTBjn491mwZYT7Q92V1HlSBtM6WdWlK1aZN5sovfKtOX7Yrm8xa+e4o/zJ2QYLyyv5O+t2EGN/4qUEjEAPY9mwJdfzRQy6Hyzm84J0QkTuUJ/EjNuPji3D0QJRALUTzu1UqqDCEtiN9OGyXEkh7uvb7BAgMBAAGjUDBOMB0GA1UdDgQWBBSVHPNrGWrjWyZvckQxFYWO59FRFjAfBgNVHSMEGDAWgBSVHPNrGWrjWyZvckQxFYWO59FRFjAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4GBAJeJ9SEckEwPhkXOm+IuqfbUS/RcziifBCTmVyE+Fa/j9pKSYTgiEBNdbJeBEa+gPMlQtbV7Y2dy8TKx/8axVBHiXC5geDML7caxOrAyHYBpnx690xJTh5OIORBBM/a/NvaR+P3CoVebr/NPRh9oRNxnntnqvqD7SW0U3ZPe3tJc\\n-----END CERTIFICATE-----\",\r\n        \t\t\"privateKey\": \"-----BEGIN RSA PRIVATE KEY-----\\nProc-Type: 4,ENCRYPTED\\nDEK-Info: AES-256-CBC,D8FFCE6B255601587CB54EC29B737D31\\n\\nkv4Fc3Jn0Ujkj0yRjt+gQQfBLSNF2aRLUENXnlr7Xpzqu0Ahr3jS1bAAnd8IWnsR\\nyILqVmKsYF2DoHh0tWiEAQ7/y/fe5DTFhK7N4Wml6kp2yVMkP6KC4ssyYPw27kjK\\nDBwBZ5O8Ioej08A5sgsLCmglbmtSPHJUn14pQnMTmLOpEtOsu6S+2ibPgSNpdg0b\\nCAJNG/KHe+Vkx59qNDyDeKb7FZOlsX30+y67zUq9GQqJEDuysPJ2BUNP0IJXAjst\\nFIt1qNoZew+5KDYs7u/lPxcMGTirUhgI84Jy4WcDvSOsP/tKlxj04TbIE3epmSKy\\n+TihHkwY7ngIGtcm3Sfqk5jz2RXoj1/Ac3SW8kVTYaOUogBhn7zAq4Wju6Et4hQG\\nRGapsJp1aCeZ/a4RCDTxspcKoMaRa97/URQb0hBRGx3DGUhzpmX9zl7JI2Xa5D3R\\nmdBXtjLKYJTdIMdd27prBEKhMUpae2rz5Mw4J907wZeBq/wu+zp8LAnecfTe2nGY\\nE32x1U7gSEdYOGqnwxsOexb1jKgCa67Nw9TmcMPV8zmH7R9qdvgxAbAtwBl1F9OS\\nfcGaC7epf1AjJLtaX7krWmzgASHl28Ynh9lmGMdv+5QYMZvKG0LOg/n3m8uJ6sKy\\nIzzvaJswwn0j5P5+czyoV5CvvdCfKnNb+3jUEN8I0PPwjBGKr4B1ojwhogTM248V\\nHR69D6TxFVMfGpyJhCPkbGEGbpEpcffpgKuC/mEtMqyDQXJNaV5HO6HgAJ9F1P6v\\n5ehHHTMRvzCCFiwndHdlMXUjqSNjww6me6dr6LiAPbejdzhL2vWx1YqebOcwQx3G\\n-----END RSA PRIVATE KEY-----\",\r\n        \t\t\"passphrase\": {\r\n            \t\t\"ciphertext\": \"ZjVmNQ==\",\r\n            \t\t\"protected\": \"eyJhbGciOiJkaXIiLCJlbmMiOiJub25lIn0\"\r\n        \t\t}\r\n        \t}\r\n        },\r\n       \r\n        \"as3_app_4_e\": {\r\n            \"class\": \"Application\",\r\n            \"template\": \"generic\",\r\n            \r\n            \"virtual_server_4_80_e\": {\r\n                \"class\": \"Service_Generic\",\r\n                \"virtualPort\": 80,\r\n                \"virtualAddresses\": [ \r\n                \t\"10.1.20.13\" \r\n                ],\r\n                \"pool\": \"pool_4_80_e\",\r\n                \"profileTCP\": {\r\n            \t\t\"bigip\": \"/Common/custom_tcp_profile\"\r\n        \t\t},\r\n        \t\t\"iRules\": [\r\n            \t\t\"rule_4_80_e\"\t\r\n            \t]\r\n            },\r\n            \"rule_4_80_e\": {\r\n        \t\t\"class\": \"iRule\",\r\n\t        \t\"remark\": \"choose private pool based on IP\",\r\n\t        \t\"iRule\": \"when CLIENT_ACCEPTED {\\nif {[IP::client_addr] starts_with \\\"10.\\\"} {\\n pool `*pool_4_80_e`\\n }\\n}\"\r\n\t        },\r\n            \"pool_4_80_e\": {\r\n                \"class\": \"Pool\",\r\n                \"monitors\": [\r\n                    \"http\"\r\n                ],\r\n                \"members\": [\r\n                {\r\n                    \"servicePort\": 80,\r\n                    \"serverAddresses\": [\r\n                        \"10.1.10.11\"\r\n                        ]\r\n                    }\r\n            ]},\r\n                \r\n                \r\n            \"virtual_server_4_443_e\": {\r\n                \"class\": \"Service_HTTPS\",\r\n                \"persistenceMethods\": [],\r\n                \"virtualPort\": 443,\r\n                \"snat\": \"auto\",\r\n                \"virtualAddresses\": [ \r\n                \t\"10.1.20.13\" \r\n                ],\r\n                \"pool\": \"pool_4_443_e\",\r\n                \"serverTLS\": \"webtls\",\r\n                \"profileTCP\": {\r\n            \t\t\"bigip\": \"/Common/custom_tcp_profile\"\r\n        \t\t},\r\n        \t\t\"iRules\": [\r\n            \t\t\"rule_4_443_e\"\t\r\n            \t]\r\n            },\r\n            \"rule_4_443_e\": {\r\n        \t\t\"class\": \"iRule\",\r\n\t        \t\"remark\": \"choose private pool based on IP\",\r\n\t        \t\"iRule\": \"when CLIENT_ACCEPTED {\\nif {[IP::client_addr] starts_with \\\"10.\\\"} {\\n pool `*pool_4_443_e`\\n }\\n}\"\r\n\t        },\r\n            \"pool_4_443_e\": {\r\n                \"class\": \"Pool\",\r\n                \"monitors\": [\r\n                    \"https\"\r\n                ],\r\n                \"members\": [\r\n                {\r\n                    \"servicePort\": 443,\r\n                    \"serverAddresses\": [\r\n                        \"10.1.10.11\"\r\n                    ]\r\n                }]\r\n            },\r\n            \"webtls\": {\r\n        \t\t\"class\": \"TLS_Server\",\r\n        \t\t\"certificates\": [{\r\n            \t\t\"certificate\": \"webcert\"\r\n        \t\t}]\r\n        \t},\r\n        \t\"webcert\": {\r\n        \t\t\"class\": \"Certificate\",\r\n        \t\t\"certificate\": \"-----BEGIN CERTIFICATE-----\\nMIICnDCCAgWgAwIBAgIJAJ5n2b0OCEjwMA0GCSqGSIb3DQEBCwUAMGcxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApXYXNoaW5ndG9uMRAwDgYDVQQHDAdTZWF0dGxlMRQwEgYDVQQKDAtmNV9OZXR3b3JrczEbMBkGA1UEAwwSc2FtcGxlLmV4YW1wbGUubmV0MB4XDTE3MTEyNjE5NTAyNFoXDTE4MDIyNTE5NTAyNFowZzELMAkGA1UEBhMCVVMxEzARBgNVBAgMCldhc2hpbmd0b24xEDAOBgNVBAcMB1NlYXR0bGUxFDASBgNVBAoMC2Y1X05ldHdvcmtzMRswGQYDVQQDDBJzYW1wbGUuZXhhbXBsZS5uZXQwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALEsuXmSXVQpYjrZPW+WiTBjn491mwZYT7Q92V1HlSBtM6WdWlK1aZN5sovfKtOX7Yrm8xa+e4o/zJ2QYLyyv5O+t2EGN/4qUEjEAPY9mwJdfzRQy6Hyzm84J0QkTuUJ/EjNuPji3D0QJRALUTzu1UqqDCEtiN9OGyXEkh7uvb7BAgMBAAGjUDBOMB0GA1UdDgQWBBSVHPNrGWrjWyZvckQxFYWO59FRFjAfBgNVHSMEGDAWgBSVHPNrGWrjWyZvckQxFYWO59FRFjAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4GBAJeJ9SEckEwPhkXOm+IuqfbUS/RcziifBCTmVyE+Fa/j9pKSYTgiEBNdbJeBEa+gPMlQtbV7Y2dy8TKx/8axVBHiXC5geDML7caxOrAyHYBpnx690xJTh5OIORBBM/a/NvaR+P3CoVebr/NPRh9oRNxnntnqvqD7SW0U3ZPe3tJc\\n-----END CERTIFICATE-----\",\r\n        \t\t\"privateKey\": \"-----BEGIN RSA PRIVATE KEY-----\\nProc-Type: 4,ENCRYPTED\\nDEK-Info: AES-256-CBC,D8FFCE6B255601587CB54EC29B737D31\\n\\nkv4Fc3Jn0Ujkj0yRjt+gQQfBLSNF2aRLUENXnlr7Xpzqu0Ahr3jS1bAAnd8IWnsR\\nyILqVmKsYF2DoHh0tWiEAQ7/y/fe5DTFhK7N4Wml6kp2yVMkP6KC4ssyYPw27kjK\\nDBwBZ5O8Ioej08A5sgsLCmglbmtSPHJUn14pQnMTmLOpEtOsu6S+2ibPgSNpdg0b\\nCAJNG/KHe+Vkx59qNDyDeKb7FZOlsX30+y67zUq9GQqJEDuysPJ2BUNP0IJXAjst\\nFIt1qNoZew+5KDYs7u/lPxcMGTirUhgI84Jy4WcDvSOsP/tKlxj04TbIE3epmSKy\\n+TihHkwY7ngIGtcm3Sfqk5jz2RXoj1/Ac3SW8kVTYaOUogBhn7zAq4Wju6Et4hQG\\nRGapsJp1aCeZ/a4RCDTxspcKoMaRa97/URQb0hBRGx3DGUhzpmX9zl7JI2Xa5D3R\\nmdBXtjLKYJTdIMdd27prBEKhMUpae2rz5Mw4J907wZeBq/wu+zp8LAnecfTe2nGY\\nE32x1U7gSEdYOGqnwxsOexb1jKgCa67Nw9TmcMPV8zmH7R9qdvgxAbAtwBl1F9OS\\nfcGaC7epf1AjJLtaX7krWmzgASHl28Ynh9lmGMdv+5QYMZvKG0LOg/n3m8uJ6sKy\\nIzzvaJswwn0j5P5+czyoV5CvvdCfKnNb+3jUEN8I0PPwjBGKr4B1ojwhogTM248V\\nHR69D6TxFVMfGpyJhCPkbGEGbpEpcffpgKuC/mEtMqyDQXJNaV5HO6HgAJ9F1P6v\\n5ehHHTMRvzCCFiwndHdlMXUjqSNjww6me6dr6LiAPbejdzhL2vWx1YqebOcwQx3G\\n-----END RSA PRIVATE KEY-----\",\r\n        \t\t\"passphrase\": {\r\n            \t\t\"ciphertext\": \"ZjVmNQ==\",\r\n            \t\t\"protected\": \"eyJhbGciOiJkaXIiLCJlbmMiOiJub25lIn0\"\r\n        \t\t}\r\n        \t}\r\n        }\r\n        \r\n    }\r\n}"
+				},
+				"url": {
+					"raw": "https://10.1.1.7/mgmt/shared/appsvcs/declare",
+					"protocol": "https",
+					"host": [
+						"10",
+						"1",
+						"1",
+						"7"
+					],
+					"path": [
+						"mgmt",
+						"shared",
+						"appsvcs",
+						"declare"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Clear Tenant",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "admin",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": " {\r\n    \"class\": \"AS3\",\r\n    \"action\": \"deploy\",\r\n    \"declaration\": {\r\n        \"class\": \"ADC\",\r\n        \"schemaVersion\": \"3.10.0\",\r\n        \"as3_tenant\": {\r\n            \"class\": \"Tenant\"        \r\n        }\r\n    }\r\n }"
+				},
+				"url": {
+					"raw": "https://10.1.1.7/mgmt/shared/appsvcs/declare",
+					"protocol": "https",
+					"host": [
+						"10",
+						"1",
+						"1",
+						"7"
+					],
+					"path": [
+						"mgmt",
+						"shared",
+						"appsvcs",
+						"declare"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
