@@ -1,0 +1,327 @@
+{
+	"info": {
+		"_postman_id": "cc89a235-8d6d-48cf-bb48-6b1e597c5159",
+		"name": "BIG-IQ 7.0 Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authenticate to BIG-IQ",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "fe795d3c-9124-44ba-8120-cf46aa804c31",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.globals.set(\"_f5_token\", jsonData.token.token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"username\":\"admin\",\r\n\t\"password\":\"Admin123@\",\r\n\t\"loginProviderName\": \"tmos\"\r\n}"
+				},
+				"url": {
+					"raw": "https://10.1.1.8/mgmt/shared/authn/login",
+					"protocol": "https",
+					"host": [
+						"10",
+						"1",
+						"1",
+						"8"
+					],
+					"path": [
+						"mgmt",
+						"shared",
+						"authn",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload HTTP Template to BIG-IQ",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c88d364f-e6f6-47ba-ad91-9eb6e64fbaf5",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "X-F5-Auth-Token",
+						"value": "{{_f5_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"http-template\",\r\n    \"schemaOverlay\": {\r\n        \"type\": \"object\",\r\n        \"additionalProperties\": false,\r\n        \"properties\": {\r\n            \"template\": {\r\n                \"const\": \"http\",\r\n                \"default\": \"http\"\r\n            },\r\n            \"class\": {},\r\n            \"schemaOverlay\": {},\r\n            \"serviceMain\": {\r\n                \"type\": \"object\",\r\n                \"additionalProperties\": false,\r\n                \"properties\": {\r\n                    \"class\": {\r\n                        \"const\": \"Service_HTTP\",\r\n                        \"default\": \"Service_HTTP\"\r\n                    },\r\n                    \"virtualPort\": {},\r\n                    \"virtualAddresses\": {},\r\n                    \"pool\": {\r\n                        \"default\": \"web_pool\"\r\n                    }\r\n                }\r\n            },\r\n            \"web_pool\": {\r\n                \"type\": \"object\",\r\n                \"additionalProperties\": false,\r\n                \"properties\": {\r\n                    \"class\": {\r\n                        \"const\": \"Pool\",\r\n                        \"default\": \"Pool\"\r\n                    },\r\n                    \"members\": {}\r\n                }\r\n            }\r\n        }\r\n    }\r\n}"
+				},
+				"url": {
+					"raw": "https://10.1.1.8/mgmt/cm/global/appsvcs-templates",
+					"protocol": "https",
+					"host": [
+						"10",
+						"1",
+						"1",
+						"8"
+					],
+					"path": [
+						"mgmt",
+						"cm",
+						"global",
+						"appsvcs-templates"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create HTTP App with Template",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c88d364f-e6f6-47ba-ad91-9eb6e64fbaf5",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "X-F5-Auth-Token",
+						"type": "text",
+						"value": "{{_f5_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"class\": \"AS3\",\r\n    \"declaration\": {\r\n        \"class\": \"ADC\",\r\n        \"target\": {\r\n            \"hostname\": \"ip-10-1-1-7.us-west-2.compute.internal\"\r\n        },\r\n        \"schemaVersion\": \"3.7.0\",\r\n        \"bigiq_tenant\": {\r\n            \"class\": \"Tenant\",\r\n             \"http_app\": {\r\n                \"class\": \"Application\",\r\n                \"schemaOverlay\": \"http-template\",\r\n                \"template\": \"http\",\r\n                \"serviceMain\": {\r\n                    \"class\": \"Service_HTTP\",\r\n                    \"virtualAddresses\": [\"10.0.2.13\"],\r\n                    \"pool\": \"web_pool\"\r\n                },\r\n                \"web_pool\": {\r\n                    \"class\": \"Pool\"\r\n                }\r\n            }\r\n        }\r\n    }\r\n}"
+				},
+				"url": {
+					"raw": "https://10.1.1.8/mgmt/shared/appsvcs/declare",
+					"protocol": "https",
+					"host": [
+						"10",
+						"1",
+						"1",
+						"8"
+					],
+					"path": [
+						"mgmt",
+						"shared",
+						"appsvcs",
+						"declare"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload HTTPS Template to BIG-IQ",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c88d364f-e6f6-47ba-ad91-9eb6e64fbaf5",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "X-F5-Auth-Token",
+						"type": "text",
+						"value": "{{_f5_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"https-template\",\r\n    \"schemaOverlay\": {\r\n        \"type\": \"object\",\r\n        \"additionalProperties\": false,\r\n        \"properties\": {\r\n            \"template\": {\r\n                \"const\": \"https\",\r\n                \"default\": \"https\"\r\n            },\r\n            \"class\": {},\r\n            \"schemaOverlay\": {},\r\n            \"serviceMain\": {\r\n                \"type\": \"object\",\r\n                \"additionalProperties\": false,\r\n                \"properties\": {\r\n                    \"class\": {\r\n                        \"const\": \"Service_HTTPS\",\r\n                        \"default\": \"Service_HTTPS\"\r\n                    },\r\n                    \"virtualPort\": {},\r\n                    \"virtualAddresses\": {},\r\n                    \"serverTLS\": {\r\n                        \"default\": \"webtls\",\r\n                        \"const\": \"webtls\"\r\n                    },\r\n                    \"pool\": {\r\n                        \"default\": \"web_pool\"\r\n                    }\r\n                }\r\n            },\r\n            \"web_pool\": {\r\n                \"type\": \"object\",\r\n                \"additionalProperties\": false,\r\n                \"properties\": {\r\n                    \"class\": {\r\n                        \"const\": \"Pool\",\r\n                        \"default\": \"Pool\"\r\n                    },\r\n                    \"loadBalancingMode\": {\r\n                        \"default\": \"predictive-node\"\r\n                    },\r\n                    \"monitors\": {\r\n                        \"default\": [\"http\"]\r\n                    },\r\n                    \"members\": {}\r\n                }\r\n            },\r\n            \"webtls\": {\r\n                \"type\": \"object\",\r\n                \"additionalProperties\": false,\r\n                \"properties\": {\r\n                    \"class\": {\r\n                        \"const\": \"TLS_Server\",\r\n                        \"default\": \"TLS_Server\"\r\n                    },\r\n                    \"certificates\": {\r\n                        \"type\": \"array\",\r\n                        \"default\": [{\r\n                            \"certificate\": \"webcert\"\r\n                        }]\r\n                    }\r\n                }\r\n            },\r\n            \"webcert\": {\r\n                \"type\": \"object\",\r\n                \"additionalProperties\": false,\r\n                \"properties\": {\r\n                    \"class\": {\r\n                        \"const\": \"Certificate\",\r\n                        \"default\": \"Certificate\"\r\n                    },\r\n                    \"certificate\": {},\r\n                    \"privateKey\": {},\r\n                    \"passphrase\": {}\r\n                }\r\n            }\r\n        }\r\n    }\r\n}"
+				},
+				"url": {
+					"raw": "https://10.1.1.8/mgmt/cm/global/appsvcs-templates",
+					"protocol": "https",
+					"host": [
+						"10",
+						"1",
+						"1",
+						"8"
+					],
+					"path": [
+						"mgmt",
+						"cm",
+						"global",
+						"appsvcs-templates"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create HTTPS App with Template",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c88d364f-e6f6-47ba-ad91-9eb6e64fbaf5",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "X-F5-Auth-Token",
+						"type": "text",
+						"value": "{{_f5_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"class\": \"AS3\",\r\n    \"declaration\": {\r\n        \"class\": \"ADC\",\r\n        \"target\": {\r\n            \"hostname\": \"ip-10-1-1-7.us-west-2.compute.internal\"\r\n        },\r\n        \"schemaVersion\": \"3.7.0\",\r\n        \"bigiq_tenant\": {\r\n            \"class\": \"Tenant\",\r\n             \"https_app\": {\r\n                \"class\": \"Application\",\r\n                \"schemaOverlay\": \"https-template\",\r\n                \"template\": \"https\",\r\n                \"serviceMain\": {\r\n                    \"class\": \"Service_HTTPS\",\r\n                    \"virtualAddresses\": [\"10.0.2.13\"],\r\n                    \"pool\": \"web_pool\",\r\n                    \"serverTLS\": \"webtls\"\r\n                },\r\n                \"web_pool\": {\r\n                    \"class\": \"Pool\"\r\n                },\r\n                \"webtls\": {\r\n\t\t          \"class\": \"TLS_Server\"\r\n\t\t        },\r\n\t\t        \"webcert\": {\r\n\t\t          \"class\": \"Certificate\",\r\n\t\t          \"certificate\": \"-----BEGIN CERTIFICATE-----\\nMIICnDCCAgWgAwIBAgIJAJ5n2b0OCEjwMA0GCSqGSIb3DQEBCwUAMGcxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApXYXNoaW5ndG9uMRAwDgYDVQQHDAdTZWF0dGxlMRQwEgYDVQQKDAtmNV9OZXR3b3JrczEbMBkGA1UEAwwSc2FtcGxlLmV4YW1wbGUubmV0MB4XDTE3MTEyNjE5NTAyNFoXDTE4MDIyNTE5NTAyNFowZzELMAkGA1UEBhMCVVMxEzARBgNVBAgMCldhc2hpbmd0b24xEDAOBgNVBAcMB1NlYXR0bGUxFDASBgNVBAoMC2Y1X05ldHdvcmtzMRswGQYDVQQDDBJzYW1wbGUuZXhhbXBsZS5uZXQwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALEsuXmSXVQpYjrZPW+WiTBjn491mwZYT7Q92V1HlSBtM6WdWlK1aZN5sovfKtOX7Yrm8xa+e4o/zJ2QYLyyv5O+t2EGN/4qUEjEAPY9mwJdfzRQy6Hyzm84J0QkTuUJ/EjNuPji3D0QJRALUTzu1UqqDCEtiN9OGyXEkh7uvb7BAgMBAAGjUDBOMB0GA1UdDgQWBBSVHPNrGWrjWyZvckQxFYWO59FRFjAfBgNVHSMEGDAWgBSVHPNrGWrjWyZvckQxFYWO59FRFjAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4GBAJeJ9SEckEwPhkXOm+IuqfbUS/RcziifBCTmVyE+Fa/j9pKSYTgiEBNdbJeBEa+gPMlQtbV7Y2dy8TKx/8axVBHiXC5geDML7caxOrAyHYBpnx690xJTh5OIORBBM/a/NvaR+P3CoVebr/NPRh9oRNxnntnqvqD7SW0U3ZPe3tJc\\n-----END CERTIFICATE-----\",\r\n\t\t\t      \"privateKey\": \"-----BEGIN RSA PRIVATE KEY-----\\nProc-Type: 4,ENCRYPTED\\nDEK-Info: AES-256-CBC,D8FFCE6B255601587CB54EC29B737D31\\n\\nkv4Fc3Jn0Ujkj0yRjt+gQQfBLSNF2aRLUENXnlr7Xpzqu0Ahr3jS1bAAnd8IWnsR\\nyILqVmKsYF2DoHh0tWiEAQ7/y/fe5DTFhK7N4Wml6kp2yVMkP6KC4ssyYPw27kjK\\nDBwBZ5O8Ioej08A5sgsLCmglbmtSPHJUn14pQnMTmLOpEtOsu6S+2ibPgSNpdg0b\\nCAJNG/KHe+Vkx59qNDyDeKb7FZOlsX30+y67zUq9GQqJEDuysPJ2BUNP0IJXAjst\\nFIt1qNoZew+5KDYs7u/lPxcMGTirUhgI84Jy4WcDvSOsP/tKlxj04TbIE3epmSKy\\n+TihHkwY7ngIGtcm3Sfqk5jz2RXoj1/Ac3SW8kVTYaOUogBhn7zAq4Wju6Et4hQG\\nRGapsJp1aCeZ/a4RCDTxspcKoMaRa97/URQb0hBRGx3DGUhzpmX9zl7JI2Xa5D3R\\nmdBXtjLKYJTdIMdd27prBEKhMUpae2rz5Mw4J907wZeBq/wu+zp8LAnecfTe2nGY\\nE32x1U7gSEdYOGqnwxsOexb1jKgCa67Nw9TmcMPV8zmH7R9qdvgxAbAtwBl1F9OS\\nfcGaC7epf1AjJLtaX7krWmzgASHl28Ynh9lmGMdv+5QYMZvKG0LOg/n3m8uJ6sKy\\nIzzvaJswwn0j5P5+czyoV5CvvdCfKnNb+3jUEN8I0PPwjBGKr4B1ojwhogTM248V\\nHR69D6TxFVMfGpyJhCPkbGEGbpEpcffpgKuC/mEtMqyDQXJNaV5HO6HgAJ9F1P6v\\n5ehHHTMRvzCCFiwndHdlMXUjqSNjww6me6dr6LiAPbejdzhL2vWx1YqebOcwQx3G\\n-----END RSA PRIVATE KEY-----\",\r\n\t\t\t       \"passphrase\": {\r\n\t\t\t            \"ciphertext\": \"ZjVmNQ==\",\r\n\t\t\t            \"protected\": \"eyJhbGciOiJkaXIiLCJlbmMiOiJub25lIn0\"\r\n\t\t\t        }\r\n\t\t        }\r\n            }\r\n        }\r\n    }\r\n}"
+				},
+				"url": {
+					"raw": "https://10.1.1.8/mgmt/shared/appsvcs/declare",
+					"protocol": "https",
+					"host": [
+						"10",
+						"1",
+						"1",
+						"8"
+					],
+					"path": [
+						"mgmt",
+						"shared",
+						"appsvcs",
+						"declare"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Clear Tenant",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "admin",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": " {\r\n    \"class\": \"AS3\",\r\n    \"action\": \"deploy\",\r\n    \"declaration\": {\r\n        \"class\": \"ADC\",\r\n        \"schemaVersion\": \"3.10.0\",\r\n        \"bigiq_tenant\": {\r\n            \"class\": \"Tenant\"        \r\n        }\r\n    }\r\n }"
+				},
+				"url": {
+					"raw": "https://10.1.1.7/mgmt/shared/appsvcs/declare",
+					"protocol": "https",
+					"host": [
+						"10",
+						"1",
+						"1",
+						"7"
+					],
+					"path": [
+						"mgmt",
+						"shared",
+						"appsvcs",
+						"declare"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
